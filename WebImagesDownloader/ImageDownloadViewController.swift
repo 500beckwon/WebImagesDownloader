@@ -33,7 +33,7 @@ final class ImageDownloadViewController: UIViewController {
     }
     
     @objc func loadAllButtonTapped(_ sender: UIButton) {
-       loadNow = true
+        loadNow = true
         collectionView.reloadData()
     }
 }
@@ -52,9 +52,6 @@ extension ImageDownloadViewController: UICollectionViewDataSource {
         cell.configureCell(urlString: imageURLStringList[indexPath.item], loadNow: loadNow)
         
         return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
     }
 }
 

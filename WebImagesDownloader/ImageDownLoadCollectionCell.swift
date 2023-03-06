@@ -18,6 +18,7 @@ final class ImageDownLoadCollectionCell: UICollectionViewCell {
     private let placeholderImage = UIImage(systemName: "photo.fill")
     private var urlString = ""
     private var loadComplete = true
+    private var observation: NSKeyValueObservation!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,11 +29,16 @@ final class ImageDownLoadCollectionCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    deinit {
+        observation = nil
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         imageView.image = nil
         loadComplete = true
         urlString = ""
+        progressView.progress = 0
     }
     
     func configureCell(urlString: String, loadNow: Bool = false) {
@@ -44,15 +50,19 @@ final class ImageDownLoadCollectionCell: UICollectionViewCell {
     
     private func downloadImage(urlString: String) {
         imageView.image = placeholderImage
+        progressView.progress = 0
         ImageDownLoad()
-            .downloadImage(urlString: urlString) { [weak self] result in
-                switch result {
-                case .success(let imageData):
-                    self?.setImage(imageData: imageData)
-                case .failure:
-                    break
+            .downloadImage(
+                urlString: urlString) { [weak self] progress in
+                    self?.setProgress(progress)
+                } completion: { [weak self] result in
+                    switch result {
+                    case .success(let imageData):
+                        self?.setImage(imageData: imageData)
+                    case .failure:
+                        break
+                    }
                 }
-            }
     }
     
     private func setImage(imageData: Data) {
@@ -62,6 +72,15 @@ final class ImageDownLoadCollectionCell: UICollectionViewCell {
             self.imageView.image = image
             self.loadComplete = true
         }
+    }
+    
+    private func setProgress(_ progress: Progress) {
+        observation = progress.observe(\.fractionCompleted, changeHandler: { progress, change in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.progressView.progress = Float(progress.fractionCompleted)
+            }
+        })
     }
 }
 
@@ -86,7 +105,7 @@ private extension ImageDownLoadCollectionCell {
         
         imageView.image = placeholderImage
         
-        progressView.progress = 0.5
+        progressView.progress = 0
         progressView.progressTintColor = .blue
         
         loadButton.layer.cornerRadius = 5

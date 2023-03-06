@@ -14,7 +14,7 @@ enum ImageDownloadError: Error {
 
 struct ImageDownLoad {
     
-    func downloadImage(urlString: String, completion: @escaping(Result<Data, ImageDownloadError>) -> Void) {
+    func downloadImage(urlString: String, _ progressHandler: @escaping(Progress) -> Void,completion: @escaping(Result<Data, ImageDownloadError>) -> Void) {
         guard let url = URL(string: urlString) else {
             completion(.failure(.badURL))
             return
@@ -35,6 +35,9 @@ struct ImageDownLoad {
                 completion(.failure(.failDownload))
             }
         }        
+        progressHandler(downloadTask.progress)
+
+      //  _ = downloadTask.progress.observe(\.fractionCompleted, options: [.new], changeHandler: progressHandler)
         
         downloadTask.resume()
     }
