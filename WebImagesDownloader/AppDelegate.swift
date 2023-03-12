@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          
         window = UIWindow(frame: UIScreen.main.bounds)
         
-        let viewController = ImageDownloadViewController()
+        let viewController = ImageLoadViewController()
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
         
